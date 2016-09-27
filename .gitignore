@@ -1,3 +1,23 @@
+*~
+\#*
+target
+out
+.project
+.classpath
+.settings
+.externalToolBuilders/
+.scala_dependencies
+.factorypath
+.cache
+*.iws
+*.ipr
+*.iml
+.idea
+.DS_Store
+.shell_history
+.mailmap
+.java-version
+
 *.class
 
 # Mobile Tools for Java (J2ME)
