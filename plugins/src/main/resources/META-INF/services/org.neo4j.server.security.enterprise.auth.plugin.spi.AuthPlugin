@@ -1,1 +1,1 @@
-org.neo4j.example.auth.MyAuthPlugin
+org.neo4j.example.auth.plugin.MyAuthPlugin
