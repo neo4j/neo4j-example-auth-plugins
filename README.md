@@ -21,11 +21,11 @@ Copy the output jar file into the plugins folder of Neo4j Enterprise Edition 3.1
 
 Edit the Neo4j configuration file `<NEO4J-HOME>/conf/neo4j.conf` and add the `dbms.security.realm` setting, e.g.:
 
-    dbms.security.realm=plugin-org.neo4j.example.auth.MyAuthPlugin
+    dbms.security.realm=plugin-org.neo4j.example.auth.plugin.MyAuthPlugin
 
 You can also enable multiple plugins simultaneously with the `dbms.security.realms` setting, e.g.:
 
-    dbms.security.realms=plugin-org.neo4j.example.auth.MyAuthPlugin1,plugin-org.neo4j.example.auth.MyAuthPlugin2
+    dbms.security.realms=plugin-MyAuthPlugin1,plugin-MyAuthPlugin2
 
 You can also toggle authentication and authorization enabled individually, e.g.:
 
