@@ -20,7 +20,7 @@
   <packaging>jar</packaging>
   <name>Neo4j Example Auth Plugins</name>
   <description>Example auth plugins for Neo4j</description>
-  <url>https://github.com/neo4j/neo4j-example-auth-plugins</url>
+  <url>https://github.com/neo-technology/neo4j-example-auth-plugins</url>
 
   <licenses>
     <license>
@@ -38,6 +38,17 @@
     </dependency>
 
     <!-- Test dependencies -->
+    <dependency>
+      <groupId>org.neo4j.driver</groupId>
+      <artifactId>neo4j-java-driver</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j.driver</groupId>
+      <artifactId>neo4j-java-driver</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest-library</artifactId>
@@ -139,14 +150,6 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
       </plugin>
     </plugins>
   </build>
