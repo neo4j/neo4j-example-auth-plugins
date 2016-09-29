@@ -38,12 +38,6 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class MyAuthPluginIT
 {
-    @BeforeClass
-    public static void setUp()
-    {
-        System.setProperty( "neorun.start.args", "-n 3.1" );
-    }
-
     @Rule
     public TemporaryFolder tempDir = new TemporaryFolder();
 
