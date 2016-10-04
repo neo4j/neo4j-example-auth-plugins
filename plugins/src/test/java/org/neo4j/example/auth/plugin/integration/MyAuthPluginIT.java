@@ -18,7 +18,6 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;

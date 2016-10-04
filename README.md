@@ -22,6 +22,8 @@ There is a script that you can use to do this manually on Linux or Mac:
 
     ./reinstall-neo4j.sh neo4j-enterprise-<VERSION>-unix.tar.gz
 
+(NOTE: Do not do `mvn clean` after running this, or it will remove the Neo4j you just installed) 
+
 Or you can setup some environment variables to have Neo4j automatically downloaded and installed by `neokit`:
  
     TEAMCITY_NEO4J_31NIGHTLY=https://build.neohq.net/repository/download/Drivers_Neo4jArtifacts_Neo4j31artifacts/lastSuccessful/neo4j-artifacts/neo4j-enterprise-3.1-NIGHTLY-unix.tar.gz
