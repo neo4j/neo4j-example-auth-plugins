@@ -1,1 +1,2 @@
 org.neo4j.example.auth.plugin.MyAuthPlugin
+org.neo4j.example.auth.plugin.PkiAuthPlugin

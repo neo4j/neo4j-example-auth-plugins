@@ -50,7 +50,7 @@
       <dependency>
         <groupId>org.neo4j.driver</groupId>
         <artifactId>neo4j-java-driver</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1.0-M02</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -90,31 +90,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>com.mycila</groupId>
-        <artifactId>license-maven-plugin</artifactId>
-        <version>2.11</version>
-        <configuration>
-          <header>plugins/src/main/resources/license-header.txt</header>
-          <properties>
-            <thisYear>2016</thisYear>
-          </properties>
-          <includes>
-            <include>**/*.java</include>
-          </includes>
-        </configuration>
-        <executions>
-          <execution>
-            <!-- always check license headers -->
-            <id>check-license-header</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-          <!-- also available: `mvn license:[cmd]` where cmd could be one of `check`, `format`, or `delete`-->
-        </executions>
-      </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.3.2</version>
