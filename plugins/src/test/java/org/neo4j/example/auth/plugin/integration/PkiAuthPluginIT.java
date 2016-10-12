@@ -18,7 +18,6 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -41,16 +40,16 @@ import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.util.Neo4jSettings;
 import org.neo4j.driver.v1.util.TestNeo4j;
-import org.neo4j.example.auth.plugin.PkiAuthPlugin;
+import org.neo4j.example.auth.plugin.pki.PkiAuthPlugin;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.fail;
-import static org.neo4j.example.auth.plugin.PkiAuthPlugin.CRYPTO_ALGORITHM;
-import static org.neo4j.example.auth.plugin.PkiAuthPlugin.DEFAULT_USER;
-import static org.neo4j.example.auth.plugin.PkiAuthPlugin.ENCRYPTED_USERNAME_PARAMETER_NAME;
+import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.CRYPTO_ALGORITHM;
+import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.DEFAULT_USER;
+import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.ENCRYPTED_USERNAME_PARAMETER_NAME;
 import static org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.ADMIN;
 import static org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.READER;
 
@@ -221,7 +220,7 @@ public class PkiAuthPluginIT
     {
         neo4j.restart( Neo4jSettings.TEST_SETTINGS.updateWith( Neo4jSettings.AUTH_ENABLED, "true" )
                 .updateWith( PkiAuthPlugin.DEFAULT_USER_PUBLIC_KEY_SETTING, publicKeyAsString( defaultUserPublicKey ) )
-                .updateWith( "dbms.security.realm", "plugin-org.neo4j.example.auth.plugin.PkiAuthPlugin" ) );
+                .updateWith( "dbms.security.realm", "plugin-org.neo4j.example.auth.plugin.pki.PkiAuthPlugin" ) );
     }
 
     private static String publicKeyAsString( PublicKey publicKey )

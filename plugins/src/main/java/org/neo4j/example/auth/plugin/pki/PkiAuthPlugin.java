@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.example.auth.plugin;
+package org.neo4j.example.auth.plugin.pki;
 
 import java.io.BufferedReader;
 import java.nio.file.Files;

@@ -16,30 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.neo4j.example.auth.plugin;
+package org.neo4j.example.auth.plugin.pki;
 
-import java.security.PublicKey;
-import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
-public class UserInfo
+import org.neo4j.procedure.Mode;
+import org.neo4j.procedure.Name;
+import org.neo4j.procedure.Procedure;
+
+public class PkiProcedures
 {
-    private final PublicKey publicKey;
-    private final Set<String> roles;
-
-    public UserInfo( PublicKey publicKey, Set<String> roles )
+    @Procedure( name = "addPkiUser", mode = Mode.DBMS )
+    public void addPkiUser( @Name( "username" ) String username, @Name( "publicKey" ) String publicKey,
+            @Name( "roles" ) List<String> roles )
     {
-        this.publicKey = publicKey;
-        this.roles = roles;
+        PkiRepository.add( username, publicKey, roles.toArray( new String[0] ) );
     }
 
-    public PublicKey getPublicKey()
+    @Procedure( name = "removePkiUser", mode = Mode.DBMS )
+    public void removePkiUser( @Name( "username" ) String username )
     {
-        return publicKey;
-    }
-
-    public Set<String> getRoles()
-    {
-        return Collections.unmodifiableSet( roles );
+        PkiRepository.remove( username );
     }
 }
