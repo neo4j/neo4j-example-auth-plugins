@@ -85,7 +85,7 @@ public class MyAuthPluginIT
     {
         neo4j.restart( Neo4jSettings.TEST_SETTINGS
                 .updateWith( Neo4jSettings.AUTH_ENABLED, "true" )
-                .updateWith( "dbms.security.realm", "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" )
+                .updateWith( "dbms.security.auth_provider", "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" )
                 .updateWith( Neo4jSettings.DATA_DIR, tempDir.getRoot().getAbsolutePath().replace("\\", "/") ));
     }
 }

@@ -220,7 +220,7 @@ public class PkiAuthPluginIT
     {
         neo4j.restart( Neo4jSettings.TEST_SETTINGS.updateWith( Neo4jSettings.AUTH_ENABLED, "true" )
                 .updateWith( PkiAuthPlugin.DEFAULT_USER_PUBLIC_KEY_SETTING, publicKeyAsString( defaultUserPublicKey ) )
-                .updateWith( "dbms.security.realm", "plugin-org.neo4j.example.auth.plugin.pki.PkiAuthPlugin" ) );
+                .updateWith( "dbms.security.auth_provider", "plugin-org.neo4j.example.auth.plugin.pki.PkiAuthPlugin" ) );
     }
 
     private static String publicKeyAsString( PublicKey publicKey )
