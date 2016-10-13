@@ -18,8 +18,12 @@
  */
 package org.neo4j.example.auth.plugin.ldap;
 
+import java.io.BufferedReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Hashtable;
 import java.util.LinkedHashSet;
+import java.util.Properties;
 import java.util.Set;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -34,6 +38,7 @@ import javax.naming.ldap.LdapContext;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
 import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
+import org.neo4j.server.security.enterprise.auth.plugin.api.RealmOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
@@ -51,15 +56,41 @@ import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
  */
 public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
 {
-    public static final String LDAP_SERVER_URL = "ldap://localhost:389";
+    public static final String PLUGIN_NAME = "ldap-alternative-groups";
+    public static final String LDAP_SERVER_URL_SETTING = "dbms.security.ldap.host";
+
     private static final String GROUP_SEARCH_BASE = "ou=groups,dc=example,dc=com";
     private static final String GROUP_SEARCH_FILTER = "(&(objectClass=posixGroup)(memberUid={0}))";
-    public static final String GROUP_ID = "gidNumber";
+    private static final String GROUP_ID = "gidNumber";
+
+    private RealmOperations api;
+    private String ldapServerUrl;
 
     @Override
     public String name()
     {
-        return "ldap-alternative-groups";
+        return PLUGIN_NAME;
+    }
+
+    @Override
+    public void initialize( RealmOperations realmOperations ) throws Exception
+    {
+        api = realmOperations;
+        api.log().info( "initialized!" );
+
+        Path neo4jConf = api.neo4jHome().resolve( "conf/neo4j.conf" );
+
+        Properties properties = new Properties();
+        try ( BufferedReader reader = Files.newBufferedReader( neo4jConf ) )
+        {
+            properties.load( reader );
+        }
+
+        ldapServerUrl = (String) properties.get( LDAP_SERVER_URL_SETTING );
+        if ( ldapServerUrl == null )
+        {
+            throw new IllegalStateException( "Missing ldap server url setting '" + LDAP_SERVER_URL_SETTING + "'." );
+        }
     }
 
     @Override
@@ -70,8 +101,15 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
             String username = authToken.principal();
             char[] password = authToken.credentials();
 
+            api.log().info( "Log in attempted for user '" + username + "'.");
+
             LdapContext ctx = authenticate( username, password );
+
+            api.log().info( "User '" + username + "' authenticated." );
+
             Set<String> roles = authorize( ctx, username );
+
+            api.log().info( "User '" + username + "' authorized roles " + roles );
 
             return AuthInfo.of( username, roles );
         }
@@ -85,9 +123,7 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
     {
         Hashtable<String,Object> env = new Hashtable<>();
         env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-        env.put( Context.PROVIDER_URL, LDAP_SERVER_URL );
-
-        // NOTE: Directly injecting the username in the string is subjectable to injection
+        env.put( Context.PROVIDER_URL, ldapServerUrl );
         env.put( Context.SECURITY_PRINCIPAL, String.format( "cn=%s,ou=users,dc=example,dc=com", username ) );
         env.put( Context.SECURITY_CREDENTIALS, password );
 

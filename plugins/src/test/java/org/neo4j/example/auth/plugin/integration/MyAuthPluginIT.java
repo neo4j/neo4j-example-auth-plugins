@@ -34,6 +34,7 @@ import org.neo4j.driver.v1.util.TestNeo4j;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertTrue;
 
 public class MyAuthPluginIT
 {
@@ -71,9 +72,12 @@ public class MyAuthPluginIT
 
         StatementResult result =
                 session.run( "MATCH (a:Person) WHERE a.name = 'Kalle Moraeus' RETURN a.name AS name, a.title AS title" );
+        assertTrue( result.hasNext() );
         while ( result.hasNext() )
         {
             Record record = result.next();
+            assertThat( record.get( "name" ).asString(), equalTo( "Kalle Moraeus" ) );
+            assertThat( record.get( "title" ).asString(), equalTo( "Riksspelman" ) );
             System.out.println( record.get( "title" ).asString() + " " + record.get( "name" ).asString() );
         }
 

@@ -1,0 +1,121 @@
+version: 1
+
+dn: dc=example,dc=com
+dc: example
+o: example
+objectclass: top
+objectclass: dcObject
+objectclass: organization
+
+#########
+# Groups
+#########
+
+dn: ou=groups,dc=example,dc=com
+objectclass: organizationalUnit
+objectclass: top
+ou: groups
+
+dn: cn=reader,ou=groups,dc=example,dc=com
+cn: reader
+gidnumber: 500
+memberUid: neo
+objectclass: posixGroup
+objectclass: top
+
+dn: cn=publisher,ou=groups,dc=example,dc=com
+cn: publisher
+gidnumber: 501
+memberUid: tank
+objectclass: posixGroup
+objectclass: top
+
+dn: cn=architect,ou=groups,dc=example,dc=com
+cn: architect
+gidnumber: 502
+memberUid: trinity
+objectclass: posixGroup
+objectclass: top
+
+dn: cn=admin,ou=groups,dc=example,dc=com
+cn: admin
+gidnumber: 503
+memberUid: neo4j
+objectclass: posixGroup
+objectclass: top
+
+dn: cn=agent,ou=groups,dc=example,dc=com
+cn: agent
+gidnumber: 504
+memberUid: smith
+objectclass: posixGroup
+objectclass: top
+
+#########
+# Users
+#########
+
+dn: ou=users,dc=example,dc=com
+objectclass: organizationalUnit
+objectclass: top
+ou: users
+
+dn: cn=neo,ou=users,dc=example,dc=com
+cn:  neo
+gidnumber: 500
+homedirectory: /home/users/neo
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: neo
+uid: neo
+uidnumber: 1000
+userpassword: {MD5}6ZoYxCjLONXyYIU2eJIuAw==
+
+dn: cn=tank,ou=users,dc=example,dc=com
+cn:  tank
+gidnumber: 501
+homedirectory: /home/users/tank
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: tank
+uid: tank
+uidnumber: 1001
+userpassword: {MD5}6ZoYxCjLONXyYIU2eJIuAw==
+
+dn: cn=trinity,ou=users,dc=example,dc=com
+cn:  trinity
+gidnumber: 502
+homedirectory: /home/users/trinity
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: trinity
+uid: trinity
+uidnumber: 1002
+userpassword: {MD5}6ZoYxCjLONXyYIU2eJIuAw==
+
+dn: cn=neo4j,ou=users,dc=example,dc=com
+cn:  neo4j
+gidnumber: 503
+homedirectory: /home/users/neo4j
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: neo4j
+uid: neo4j
+uidnumber: 1003
+userpassword: {MD5}6ZoYxCjLONXyYIU2eJIuAw==
+
+dn: cn=smith,ou=users,dc=example,dc=com
+cn:  smith
+gidnumber: 504
+homedirectory: /home/users/smith
+objectclass: inetOrgPerson
+objectclass: posixAccount
+objectclass: top
+sn: smith
+uid: smith
+uidnumber: 1004
+userpassword: {MD5}6ZoYxCjLONXyYIU2eJIuAw==

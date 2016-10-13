@@ -30,6 +30,7 @@ import java.security.PublicKey;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.crypto.Cipher;
 
 import org.neo4j.driver.v1.AuthToken;
@@ -44,6 +45,7 @@ import org.neo4j.example.auth.plugin.pki.PkiAuthPlugin;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonMap;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.fail;
@@ -87,7 +89,7 @@ public class PkiAuthPluginIT
         try
         {
             createNode( testUser, testUserPrivateKey );
-            fail( "Shouldn't not be possible to create node using removed user" );
+            fail( "Should not be possible to create node using removed user" );
         }
         catch ( Exception e )
         {
@@ -113,7 +115,7 @@ public class PkiAuthPluginIT
         try
         {
             createNode( testUser, testUserPrivateKey );
-            fail( "Shouldn't not be possible to create node using READER user" );
+            fail( "Should not be possible to create node using reader user" );
         }
         catch ( Exception e )
         {
@@ -129,7 +131,7 @@ public class PkiAuthPluginIT
         try ( Driver driver = GraphDatabase.driver( "bolt://localhost", authToken );
                 Session session = driver.session() )
         {
-            String query = "call addPkiUser({username}, {key}, {roles})";
+            String query = "CALL addPkiUser({username}, {key}, {roles})";
 
             Map<String,Object> params = new HashMap<>();
             params.put( "username", username );
@@ -162,9 +164,10 @@ public class PkiAuthPluginIT
         try ( Driver driver = GraphDatabase.driver( "bolt://localhost", authToken );
                 Session session = driver.session() )
         {
-            session.run( "create()" ).consume();
-            Value value = session.run( "match (n) return count(n)" ).single().get( 0 );
-            assertThat( value.asLong(), greaterThanOrEqualTo( 1L ) );
+            String nodeName = UUID.randomUUID().toString();
+            session.run( "CREATE ({name: '" + nodeName + "'})" ).consume();
+            Value value = session.run( "MATCH (n {name: '" + nodeName + "'}) RETURN count(n)" ).single().get( 0 );
+            assertThat( value.asLong(), equalTo( 1L ) );
         }
     }
 
@@ -175,7 +178,7 @@ public class PkiAuthPluginIT
         try ( Driver driver = GraphDatabase.driver( "bolt://localhost", authToken );
                 Session session = driver.session() )
         {
-            Value value = session.run( "match (n) return count(n)" ).single().get( 0 );
+            Value value = session.run( "MATCH (n) RETURN count(n)" ).single().get( 0 );
             assertThat( value.asLong(), greaterThanOrEqualTo( 1L ) );
         }
     }
