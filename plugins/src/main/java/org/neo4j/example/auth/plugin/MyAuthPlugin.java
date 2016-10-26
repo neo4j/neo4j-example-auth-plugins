@@ -30,13 +30,13 @@ import java.util.Properties;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
 import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.api.RealmOperations;
+import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
 public class MyAuthPlugin extends AuthPlugin.Adapter
 {
-    private RealmOperations api;
+    private AuthProviderOperations api;
 
     @Override
     public AuthInfo authenticateAndAuthorize( AuthToken authToken ) throws AuthenticationException
@@ -63,9 +63,9 @@ public class MyAuthPlugin extends AuthPlugin.Adapter
     }
 
     @Override
-    public void initialize( RealmOperations realmOperations )
+    public void initialize( AuthProviderOperations authProviderOperations )
     {
-        api = realmOperations;
+        api = authProviderOperations;
         api.log().info( "initialized!" );
 
         loadConfig();

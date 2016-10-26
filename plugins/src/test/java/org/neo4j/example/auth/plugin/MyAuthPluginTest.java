@@ -23,7 +23,7 @@ import org.junit.Test;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import org.neo4j.server.security.enterprise.auth.plugin.api.RealmOperations;
+import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
@@ -37,8 +37,8 @@ public class MyAuthPluginTest
     {
         // Given
         MyAuthPlugin plugin = new MyAuthPlugin();
-        RealmOperations api = mock( RealmOperations.class );
-        RealmOperations.Log log = mock( RealmOperations.Log.class );
+        AuthProviderOperations api = mock( AuthProviderOperations.class );
+        AuthProviderOperations.Log log = mock( AuthProviderOperations.Log.class );
 
         when( api.neo4jHome() ).thenReturn( Paths.get( "" ) );
         when( api.neo4jConfigFile() ).thenReturn( Optional.empty() );

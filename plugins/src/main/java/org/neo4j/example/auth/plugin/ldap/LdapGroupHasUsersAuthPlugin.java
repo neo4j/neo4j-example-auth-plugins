@@ -38,7 +38,7 @@ import javax.naming.ldap.LdapContext;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
 import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.api.RealmOperations;
+import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
@@ -63,7 +63,7 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
     private static final String GROUP_SEARCH_FILTER = "(&(objectClass=posixGroup)(memberUid={0}))";
     private static final String GROUP_ID = "gidNumber";
 
-    private RealmOperations api;
+    private AuthProviderOperations api;
     private String ldapServerUrl;
 
     @Override
@@ -73,9 +73,9 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
     }
 
     @Override
-    public void initialize( RealmOperations realmOperations ) throws Exception
+    public void initialize( AuthProviderOperations authProviderOperations ) throws Exception
     {
-        api = realmOperations;
+        api = authProviderOperations;
         api.log().info( "initialized!" );
 
         Path neo4jConf = api.neo4jHome().resolve( "conf/neo4j.conf" );
