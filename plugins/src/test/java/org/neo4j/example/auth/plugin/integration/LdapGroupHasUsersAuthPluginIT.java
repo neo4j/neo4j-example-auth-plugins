@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -26,11 +26,14 @@ import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.annotations.LoadSchema;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
 import org.apache.directory.server.core.integ.FrameworkRunner;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.FileWriter;
 
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;
@@ -38,9 +41,10 @@ import org.neo4j.driver.v1.GraphDatabase;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.Value;
 import org.neo4j.driver.v1.exceptions.ClientException;
-import org.neo4j.driver.v1.util.Neo4jSettings;
-import org.neo4j.driver.v1.util.TestNeo4j;
 import org.neo4j.example.auth.plugin.ldap.LdapGroupHasUsersAuthPlugin;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.internal.EnterpriseInProcessServerBuilder;
+import org.neo4j.test.rule.TestDirectory;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -65,24 +69,43 @@ import static org.junit.Assert.fail;
 public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
 {
     @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
+    public final TestDirectory testDirectory = TestDirectory.testDirectory();
 
-    @Rule
-    public TestNeo4j neo4j = new TestNeo4j();
+    private ServerControls server;
 
     @Before
-    public void setup()
+    public void setup() throws Exception
     {
         getLdapServer().setConfidentialityRequired( false );
+
+        // Create directories and write out test config file
+        File directory = testDirectory.directory();
+        File configDir = new File( directory, "test/databases/graph.db/conf" );
+        configDir.mkdirs();
+
+        try ( FileWriter fileWriter = new FileWriter( new File( configDir, "ldap.conf" ) ) )
+        {
+            fileWriter.write( LdapGroupHasUsersAuthPlugin.LDAP_SERVER_URL_SETTING + "=ldap://localhost:10389" );
+        }
+
+        // Start up server with authentication enables
+        server = new EnterpriseInProcessServerBuilder( directory, "test" )
+                .withConfig( "dbms.security.auth_enabled", "true" )
+                .withConfig( "dbms.security.auth_provider", "plugin-" + LdapGroupHasUsersAuthPlugin.PLUGIN_NAME )
+                .newServer();
+    }
+
+    @After
+    public void tearDown() throws Exception
+    {
+        server.close();
     }
 
     @Test
     public void shouldBeAbleToLoginAndAuthorizeWithLdapGroupHasUsersAuthPlugin() throws Throwable
     {
-        restartWithAuthEnabled();
-
         // Login and create node with publisher user
-        try( Driver driver = GraphDatabase.driver( neo4j.uri(),
+        try( Driver driver = GraphDatabase.driver( server.boltURI(),
                 AuthTokens.basic( "tank", "abc123" ) );
              Session session = driver.session() )
         {
@@ -91,7 +114,7 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
         }
 
         // Login with reader user
-        try( Driver driver = GraphDatabase.driver( neo4j.uri(),
+        try( Driver driver = GraphDatabase.driver( server.boltURI(),
                 AuthTokens.basic( "neo", "abc123" ) );
              Session session = driver.session() )
         {
@@ -110,14 +133,5 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
                 assertThat( e.getMessage(), startsWith( "Write operations are not allowed" ) );
             }
         }
-    }
-
-    private void restartWithAuthEnabled() throws Exception
-    {
-        neo4j.restart( Neo4jSettings.TEST_SETTINGS
-                .updateWith( Neo4jSettings.AUTH_ENABLED, "true" )
-                .updateWith( "dbms.security.auth_provider", "plugin-" + LdapGroupHasUsersAuthPlugin.PLUGIN_NAME )
-                .updateWith( LdapGroupHasUsersAuthPlugin.LDAP_SERVER_URL_SETTING, "ldap://localhost:10389" )
-                .updateWith( Neo4jSettings.DATA_DIR, tempDir.getRoot().getAbsolutePath().replace("\\", "/") ) );
     }
 }

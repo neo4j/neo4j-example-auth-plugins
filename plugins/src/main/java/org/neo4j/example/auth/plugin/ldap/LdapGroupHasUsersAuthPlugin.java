@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -35,10 +35,10 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
 import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
@@ -78,10 +78,10 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
         api = authProviderOperations;
         api.log().info( "initialized!" );
 
-        Path neo4jConf = api.neo4jHome().resolve( "conf/neo4j.conf" );
+        Path configPath = api.neo4jHome().resolve( "conf/ldap.conf" );
 
         Properties properties = new Properties();
-        try ( BufferedReader reader = Files.newBufferedReader( neo4jConf ) )
+        try ( BufferedReader reader = Files.newBufferedReader( configPath ) )
         {
             properties.load( reader );
         }

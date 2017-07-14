@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -85,5 +85,13 @@ public class PkiRepository
         Set<T> set = newSetFromMap( new ConcurrentHashMap<>() );
         Collections.addAll( set, initialElements );
         return set;
+    }
+
+    /**
+     * Used to reset the repository during tests
+     */
+    public static void reset()
+    {
+        usernameToInfo.clear();
     }
 }

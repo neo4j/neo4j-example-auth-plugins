@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -24,13 +24,12 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Properties;
 
+import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
 import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
@@ -82,18 +81,7 @@ public class MyAuthPlugin extends AuthPlugin.Adapter
 
     private Path resolveConfigFilePath()
     {
-        Path configFilePath;
-        Optional<Path> maybeConfigFile = api.neo4jConfigFile();
-
-        if ( maybeConfigFile.isPresent() )
-        {
-            configFilePath = maybeConfigFile.get();
-        }
-        else
-        {
-            configFilePath = api.neo4jHome().resolve( "conf/neo4j.conf" );
-        }
-        return configFilePath;
+        return api.neo4jHome().resolve( "conf/MyAuthPlugin.conf" );
     }
 
     private Properties loadProperties( Path configFile )

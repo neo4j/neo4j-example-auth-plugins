@@ -39,14 +39,14 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.neo4j.driver</groupId>
-      <artifactId>neo4j-java-driver</artifactId>
+      <groupId>org.neo4j.test</groupId>
+      <artifactId>neo4j-harness-enterprise</artifactId>
+      <version>3.2.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.neo4j.driver</groupId>
       <artifactId>neo4j-java-driver</artifactId>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>

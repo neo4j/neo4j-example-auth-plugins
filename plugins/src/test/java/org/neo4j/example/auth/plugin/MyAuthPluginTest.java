@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -21,7 +21,6 @@ package org.neo4j.example.auth.plugin;
 import org.junit.Test;
 
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 
@@ -41,7 +40,6 @@ public class MyAuthPluginTest
         AuthProviderOperations.Log log = mock( AuthProviderOperations.Log.class );
 
         when( api.neo4jHome() ).thenReturn( Paths.get( "" ) );
-        when( api.neo4jConfigFile() ).thenReturn( Optional.empty() );
         when( api.log() ).thenReturn( log );
 
         // When

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -16,11 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.neo4j.example.auth.plugin.integration;
 
-import org.junit.Rule;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import org.neo4j.driver.v1.AuthTokens;
 import org.neo4j.driver.v1.Driver;
@@ -29,8 +30,8 @@ import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.Session;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.util.Neo4jSettings;
-import org.neo4j.driver.v1.util.TestNeo4j;
+import org.neo4j.harness.ServerControls;
+import org.neo4j.harness.internal.EnterpriseInProcessServerBuilder;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -38,20 +39,29 @@ import static org.junit.Assert.assertTrue;
 
 public class MyAuthPluginIT
 {
-    @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
+    private ServerControls server;
 
-    @Rule
-    public TestNeo4j neo4j = new TestNeo4j();
+    @Before
+    public void setUp() throws Exception
+    {
+        // Start up server with authentication enables
+        server = new EnterpriseInProcessServerBuilder()
+                .withConfig( "dbms.security.auth_enabled", "true" )
+                .withConfig( "dbms.security.auth_provider", "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" )
+                .newServer();
+    }
+
+    @After
+    public void tearDown() throws Exception
+    {
+        server.close();
+    }
 
     @Test
     public void shouldAuthenticateNeo4jUser() throws Throwable
     {
-        // Given
-        restartWithAuthEnabled();
-
         // When & Then
-        try( Driver driver = GraphDatabase.driver( neo4j.uri(),
+        try( Driver driver = GraphDatabase.driver( server.boltURI(),
              AuthTokens.basic( "neo4j", "neo4j" ) );
              Session session = driver.session() )
         {
@@ -63,9 +73,7 @@ public class MyAuthPluginIT
     @Test
     public void shouldAuthenticateAndAuthorizeKalleMoraeusAsAdmin() throws Exception
     {
-        restartWithAuthEnabled();
-
-        Driver driver = GraphDatabase.driver( "bolt://localhost", AuthTokens.basic( "moraeus", "suearom" ) );
+        Driver driver = GraphDatabase.driver( server.boltURI(), AuthTokens.basic( "moraeus", "suearom" ) );
         Session session = driver.session();
 
         session.run( "CREATE (a:Person {name:'Kalle Moraeus', title:'Riksspelman'})" );
@@ -83,13 +91,5 @@ public class MyAuthPluginIT
 
         session.close();
         driver.close();
-    }
-
-    private void restartWithAuthEnabled() throws Exception
-    {
-        neo4j.restart( Neo4jSettings.TEST_SETTINGS
-                .updateWith( Neo4jSettings.AUTH_ENABLED, "true" )
-                .updateWith( "dbms.security.auth_provider", "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" )
-                .updateWith( Neo4jSettings.DATA_DIR, tempDir.getRoot().getAbsolutePath().replace("\\", "/") ));
     }
 }

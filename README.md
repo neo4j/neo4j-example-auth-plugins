@@ -3,38 +3,9 @@ Example authentication and authorization plugins for Neo4j
 
 You have to run this with Java 8.
 
-If you just want to build the plugins without the hassle described below,
-you can choose to ignore integration tests by running:
+If you just want to build the plugins, you can choose to ignore integration tests by running:
 
     mvn clean install -DskipITs 
-
-To compile the code and run all tests, you first need to prepare the `neokit` submodule which is used for integration tests:
-
-    git submodule init
-    git submodule update
-
-For the integration tests to actually work you need Neo4j installed in:
-
-    target/neo4j/neo4jhome
-    
-There is a script that you can use to do this manually on Linux or Mac:
-(It takes a neo4j package tarball as the first parameter or from the environment variable `NEO4J_ARCHIVE`)
-
-    ./reinstall-neo4j.sh neo4j-enterprise-<VERSION>-unix.tar.gz
-
-(NOTE: Do not do `mvn clean` after running this, or it will remove the Neo4j you just installed) 
-
-Or you can setup some environment variables to have Neo4j automatically downloaded and installed by `neokit`:
- 
-    TEAMCITY_NEO4J_31NIGHTLY=https://build.neohq.net/repository/download/Drivers_Neo4jArtifacts_Neo4j31artifacts/lastSuccessful/neo4j-artifacts/neo4j-enterprise-3.1-NIGHTLY-unix.tar.gz
-    TEAMCITY_USER=???
-    TEAMCITY_PASSWORD=???
-
-Then finally build with: 
-
-    mvn clean install -Dneorun.start.args=”-n 3.1”
-
-(NOTE: `neokit` also requires python to be installed)
 
 ## Install plugins in Neo4j
 Copy the output jar file into the plugins folder of Neo4j Enterprise Edition 3.1 or later:

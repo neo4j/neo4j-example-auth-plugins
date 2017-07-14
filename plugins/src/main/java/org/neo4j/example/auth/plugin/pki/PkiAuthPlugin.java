@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2002-2016 "Neo Technology,"
  * Network Engine for Objects in Lund AB [http://neotechnology.com]
  *
@@ -29,10 +29,10 @@ import java.util.Objects;
 import java.util.Properties;
 import javax.crypto.Cipher;
 
+import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
 import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
 import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
 import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
@@ -48,10 +48,10 @@ public class PkiAuthPlugin extends AuthPlugin.Adapter
     @Override
     public void initialize( AuthProviderOperations authProviderOperations ) throws Exception
     {
-        Path neo4jConf = authProviderOperations.neo4jHome().resolve( "con   f/neo4j.conf" );
+        Path configPath = authProviderOperations.neo4jHome().resolve( "conf/pki.conf" );
 
         Properties properties = new Properties();
-        try ( BufferedReader reader = Files.newBufferedReader( neo4jConf ) )
+        try ( BufferedReader reader = Files.newBufferedReader( configPath ) )
         {
             properties.load( reader );
         }
