@@ -136,7 +136,7 @@
               <packageName>org/neo4j/example/auth</packageName>
             </manifest>
             <manifestEntries>
-              <!-- This is used to programatically determine the plugin version -->
+              <!-- This is used to programmatically determine the plugin version -->
               <Implementation-Version>${project.version}-${build.revision}</Implementation-Version>
             </manifestEntries>
           </archive>
