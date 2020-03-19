@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import java.nio.file.Paths;
 
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.mock;

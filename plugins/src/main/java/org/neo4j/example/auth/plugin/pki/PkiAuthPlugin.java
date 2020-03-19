@@ -19,6 +19,7 @@
 package org.neo4j.example.auth.plugin.pki;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.Key;
@@ -29,12 +30,12 @@ import java.util.Objects;
 import java.util.Properties;
 import javax.crypto.Cipher;
 
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
-import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
-import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
+import com.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
+import com.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
+import com.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -46,7 +47,7 @@ public class PkiAuthPlugin extends AuthPlugin.Adapter
     public static final String DEFAULT_USER = "neo4j";
 
     @Override
-    public void initialize( AuthProviderOperations authProviderOperations ) throws Exception
+    public void initialize( AuthProviderOperations authProviderOperations )
     {
         Path configPath = authProviderOperations.neo4jHome().resolve( "conf/pki.conf" );
 
@@ -54,6 +55,10 @@ public class PkiAuthPlugin extends AuthPlugin.Adapter
         try ( BufferedReader reader = Files.newBufferedReader( configPath ) )
         {
             properties.load( reader );
+        }
+        catch ( IOException e )
+        {
+            throw new IllegalStateException( "Failed loading properties: " + e.getMessage(), e );
         }
 
         String defaultUserPublicKeyString = (String) properties.get( DEFAULT_USER_PUBLIC_KEY_SETTING );
@@ -66,7 +71,7 @@ public class PkiAuthPlugin extends AuthPlugin.Adapter
     }
 
     @Override
-    public AuthInfo authenticateAndAuthorize( AuthToken authToken ) throws AuthenticationException
+    public AuthInfo authenticateAndAuthorize( AuthToken authToken )
     {
         String username = authToken.principal();
         Map<String,Object> parameters = authToken.parameters();

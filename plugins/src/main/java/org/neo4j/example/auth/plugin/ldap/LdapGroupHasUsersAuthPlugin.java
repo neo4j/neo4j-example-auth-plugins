@@ -19,6 +19,7 @@
 package org.neo4j.example.auth.plugin.ldap;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Hashtable;
@@ -35,12 +36,12 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
-import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
-import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
+import com.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
+import com.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
+import com.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
 /**
  * This example shows how you could authorize against an LDAP server that has a different schema configuration
@@ -73,7 +74,7 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
     }
 
     @Override
-    public void initialize( AuthProviderOperations authProviderOperations ) throws Exception
+    public void initialize( AuthProviderOperations authProviderOperations )
     {
         api = authProviderOperations;
         api.log().info( "initialized!" );
@@ -84,6 +85,10 @@ public class LdapGroupHasUsersAuthPlugin extends AuthPlugin.Adapter
         try ( BufferedReader reader = Files.newBufferedReader( configPath ) )
         {
             properties.load( reader );
+        }
+        catch ( IOException e )
+        {
+            throw new IllegalStateException( "Failed loading properties: " + e.getMessage(), e );
         }
 
         ldapServerUrl = (String) properties.get( LDAP_SERVER_URL_SETTING );

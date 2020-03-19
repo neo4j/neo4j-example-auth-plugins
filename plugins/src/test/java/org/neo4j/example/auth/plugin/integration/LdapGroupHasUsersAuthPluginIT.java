@@ -18,6 +18,8 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
+import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
+import com.neo4j.test.TestEnterpriseDatabaseManagementServiceBuilder;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
 import org.apache.directory.server.core.annotations.ApplyLdifFiles;
@@ -34,16 +36,26 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URI;
+import java.util.List;
 
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.Value;
-import org.neo4j.driver.v1.exceptions.ClientException;
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.configuration.connectors.BoltConnector;
+import org.neo4j.configuration.connectors.ConnectorPortRegister;
+import org.neo4j.configuration.helpers.SocketAddress;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Value;
+import org.neo4j.driver.exceptions.ClientException;
 import org.neo4j.example.auth.plugin.ldap.LdapGroupHasUsersAuthPlugin;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.internal.EnterpriseInProcessServerBuilder;
+import org.neo4j.internal.helpers.HostnamePort;
+import org.neo4j.io.layout.Neo4jLayout;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.test.rule.TestDirectory;
 
 import static org.hamcrest.CoreMatchers.startsWith;
@@ -51,6 +63,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.fail;
+import static org.neo4j.configuration.connectors.BoltConnector.DEFAULT_PORT;
 
 @RunWith( FrameworkRunner.class )
 @CreateDS(
@@ -60,7 +73,7 @@ import static org.junit.Assert.fail;
                 suffix = "dc=example,dc=com" )
         },
         loadedSchemas = {
-                @LoadSchema( name = "nis", enabled = true ),
+                @LoadSchema( name = "nis" ),
         } )
 @CreateLdapServer(
         transports = { @CreateTransport( protocol = "LDAP", port = 10389, address = "localhost" ) }
@@ -71,16 +84,20 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
     @Rule
     public final TestDirectory testDirectory = TestDirectory.testDirectory();
 
-    private ServerControls server;
+    private static final Config config = Config.builder().withLogging( Logging.none() ).withoutEncryption().build();
+
+    private DatabaseManagementService databases;
+    private ConnectorPortRegister connectorPortRegister;
 
     @Before
     public void setup() throws Exception
     {
         getLdapServer().setConfidentialityRequired( false );
 
+        Neo4jLayout home = Neo4jLayout.of( testDirectory.homeDir() );
+
         // Create directories and write out test config file
-        File directory = testDirectory.directory();
-        File configDir = new File( directory, "test/databases/graph.db/conf" );
+        File configDir = new File( home.homeDirectory(), "conf" );
         configDir.mkdirs();
 
         try ( FileWriter fileWriter = new FileWriter( new File( configDir, "ldap.conf" ) ) )
@@ -88,25 +105,30 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
             fileWriter.write( LdapGroupHasUsersAuthPlugin.LDAP_SERVER_URL_SETTING + "=ldap://localhost:10389" );
         }
 
-        // Start up server with authentication enables
-        server = new EnterpriseInProcessServerBuilder( directory, "test" )
-                .withConfig( "dbms.security.auth_enabled", "true" )
-                .withConfig( "dbms.security.auth_provider", "plugin-" + LdapGroupHasUsersAuthPlugin.PLUGIN_NAME )
-                .newServer();
+        // Start up server with authentication enabled
+        databases = new TestEnterpriseDatabaseManagementServiceBuilder( home )
+                .setConfig( GraphDatabaseSettings.auth_enabled, true )
+                .setConfig( SecuritySettings.authentication_providers, List.of( "plugin-" + LdapGroupHasUsersAuthPlugin.PLUGIN_NAME ) )
+                .setConfig( SecuritySettings.authorization_providers, List.of( "plugin-" + LdapGroupHasUsersAuthPlugin.PLUGIN_NAME ) )
+                .setConfig( BoltConnector.enabled, true )
+                .setConfig( BoltConnector.listen_address, new SocketAddress( "localhost", DEFAULT_PORT ) )
+                .build();
+        GraphDatabaseAPI db = (GraphDatabaseAPI) databases.database( GraphDatabaseSettings.DEFAULT_DATABASE_NAME );
+        connectorPortRegister = db.getDependencyResolver().resolveDependency( ConnectorPortRegister.class );
     }
 
     @After
-    public void tearDown() throws Exception
+    public void tearDown()
     {
-        server.close();
+        databases.shutdown();
     }
 
     @Test
-    public void shouldBeAbleToLoginAndAuthorizeWithLdapGroupHasUsersAuthPlugin() throws Throwable
+    public void shouldBeAbleToLoginAndAuthorizeWithLdapGroupHasUsersAuthPlugin()
     {
         // Login and create node with publisher user
-        try( Driver driver = GraphDatabase.driver( server.boltURI(),
-                AuthTokens.basic( "tank", "abc123" ) );
+        try( Driver driver = GraphDatabase.driver( boltURI(),
+                AuthTokens.basic( "tank", "abc123" ), config );
              Session session = driver.session() )
         {
             Value single = session.run( "CREATE (n) RETURN count(n)" ).single().get( 0 );
@@ -114,8 +136,8 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
         }
 
         // Login with reader user
-        try( Driver driver = GraphDatabase.driver( server.boltURI(),
-                AuthTokens.basic( "neo", "abc123" ) );
+        try( Driver driver = GraphDatabase.driver( boltURI(),
+                AuthTokens.basic( "neo", "abc123" ), config );
              Session session = driver.session() )
         {
             // Read query should succeed
@@ -133,5 +155,11 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
                 assertThat( e.getMessage(), startsWith( "Write operations are not allowed" ) );
             }
         }
+    }
+
+    private URI boltURI()
+    {
+        HostnamePort hostPort = connectorPortRegister.getLocalAddress( BoltConnector.NAME );
+        return URI.create( "bolt" + "://" + hostPort + "/" );
     }
 }

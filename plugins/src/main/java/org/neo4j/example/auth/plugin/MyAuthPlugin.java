@@ -26,12 +26,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
-import org.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
-import org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
-import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
-import org.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthToken;
+import com.neo4j.server.security.enterprise.auth.plugin.api.AuthenticationException;
+import com.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles;
+import com.neo4j.server.security.enterprise.auth.plugin.spi.AuthInfo;
+import com.neo4j.server.security.enterprise.auth.plugin.spi.AuthPlugin;
 
 public class MyAuthPlugin extends AuthPlugin.Adapter
 {

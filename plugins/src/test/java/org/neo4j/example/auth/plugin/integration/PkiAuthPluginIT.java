@@ -18,6 +18,8 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
+import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
+import com.neo4j.test.TestEnterpriseDatabaseManagementServiceBuilder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +27,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.net.URI;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -32,82 +35,108 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import javax.crypto.Cipher;
 
-import org.neo4j.driver.v1.AuthToken;
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.Value;
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.configuration.connectors.BoltConnector;
+import org.neo4j.configuration.connectors.ConnectorPortRegister;
+import org.neo4j.configuration.helpers.SocketAddress;
+import org.neo4j.dbms.api.DatabaseManagementService;
+import org.neo4j.driver.AuthToken;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Value;
 import org.neo4j.example.auth.plugin.pki.PkiAuthPlugin;
 import org.neo4j.example.auth.plugin.pki.PkiProcedures;
 import org.neo4j.example.auth.plugin.pki.PkiRepository;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.internal.EnterpriseInProcessServerBuilder;
+import org.neo4j.internal.helpers.HostnamePort;
+import org.neo4j.io.layout.Neo4jLayout;
+import org.neo4j.kernel.api.procedure.GlobalProcedures;
+import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.test.rule.TestDirectory;
 
+import static com.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.ADMIN;
+import static com.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.READER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.junit.Assert.fail;
+import static org.neo4j.configuration.connectors.BoltConnector.DEFAULT_PORT;
 import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.CRYPTO_ALGORITHM;
 import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.DEFAULT_USER;
 import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.ENCRYPTED_USERNAME_PARAMETER_NAME;
-import static org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.ADMIN;
-import static org.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.READER;
 
 public class PkiAuthPluginIT
 {
     @Rule
     public final TestDirectory testDirectory = TestDirectory.testDirectory();
 
-    private ServerControls server;
+    private static final Config config = Config.builder().withLogging( Logging.none() ).withoutEncryption().build();
+
+    private DatabaseManagementService databases;
     private KeyPair defaultUserKeys;
+    private ConnectorPortRegister connectorPortRegister;
 
     @Before
     public void setUp() throws Exception
     {
         defaultUserKeys = generateKeyPair();
 
+        Neo4jLayout home = Neo4jLayout.of( testDirectory.homeDir() );
+
         // Create directories and write out test config file
-        File directory = testDirectory.directory();
-        File configDir = new File( directory, "test/databases/graph.db/conf" );
+        File configDir = new File( home.homeDirectory(), "conf" );
         configDir.mkdirs();
 
         try ( FileWriter fileWriter = new FileWriter( new File( configDir, "pki.conf" ) ) )
         {
             fileWriter.write( PkiAuthPlugin.DEFAULT_USER_PUBLIC_KEY_SETTING + "=" +
-                    publicKeyAsString( defaultUserKeys.getPublic() ) );
+                              publicKeyAsString( defaultUserKeys.getPublic() ) );
         }
 
-        // Start up server with authentication enables
-        server = new EnterpriseInProcessServerBuilder( directory, "test" )
-                .withProcedure( PkiProcedures.class )
-                .withConfig( "dbms.security.auth_enabled", "true" )
-                .withConfig( "dbms.security.auth_provider", "plugin-org.neo4j.example.auth.plugin.pki.PkiAuthPlugin" )
-                .newServer();
+        // Start up server with authentication enabled
+        databases = new TestEnterpriseDatabaseManagementServiceBuilder( home )
+                .setConfig( GraphDatabaseSettings.auth_enabled, true )
+                .setConfig( SecuritySettings.authentication_providers, List.of( "plugin-org.neo4j.example.auth.plugin.pki.PkiAuthPlugin" ) )
+                .setConfig( SecuritySettings.authorization_providers, List.of( "plugin-org.neo4j.example.auth.plugin.pki.PkiAuthPlugin" ) )
+                .setConfig( BoltConnector.enabled, true )
+                .setConfig( BoltConnector.listen_address, new SocketAddress( "localhost", DEFAULT_PORT ) )
+                .build();
+        GraphDatabaseAPI db = (GraphDatabaseAPI) databases.database( GraphDatabaseSettings.DEFAULT_DATABASE_NAME );
+        db.getDependencyResolver().resolveDependency( GlobalProcedures.class ).registerProcedure( PkiProcedures.class );
+        connectorPortRegister = db.getDependencyResolver().resolveDependency( ConnectorPortRegister.class );
+    }
+
+    private URI boltURI()
+    {
+        HostnamePort hostPort = connectorPortRegister.getLocalAddress( BoltConnector.NAME );
+        return URI.create( "bolt" + "://" + hostPort + "/" );
     }
 
     @After
-    public void tearDown() throws Exception
+    public void tearDown()
     {
         PkiRepository.reset();
-        server.close();
+        databases.shutdown();
     }
 
     @Test
-    public void authenticateDefaultUser() throws Throwable
+    public void authenticateDefaultUser()
     {
         createNode( DEFAULT_USER, defaultUserKeys.getPrivate() );
     }
 
     @Test
-    public void addUserPerformOperationAndRemoveUser() throws Throwable
+    public void addUserPerformOperationAndRemoveUser()
     {
         String testUser = "testUser";
         PrivateKey testUserPrivateKey = addNewUser( defaultUserKeys.getPrivate(), testUser, ADMIN );
@@ -129,7 +158,7 @@ public class PkiAuthPluginIT
     }
 
     @Test
-    public void createdReaderUserNotAbleToWrite() throws Throwable
+    public void createdReaderUserNotAbleToWrite()
     {
         createNode( DEFAULT_USER, defaultUserKeys.getPrivate() );
 
@@ -153,10 +182,10 @@ public class PkiAuthPluginIT
         KeyPair newUserKeyPair = generateKeyPair();
 
         AuthToken authToken = pkiAuthToken( DEFAULT_USER, defaultUserPrivateKey );
-        try ( Driver driver = GraphDatabase.driver( server.boltURI(), authToken );
+        try ( Driver driver = GraphDatabase.driver( boltURI(), authToken, config );
                 Session session = driver.session() )
         {
-            String query = "CALL addPkiUser({username}, {key}, {roles})";
+            String query = "CALL addPkiUser($username, $key, $roles)";
 
             Map<String,Object> params = new HashMap<>();
             params.put( "username", username );
@@ -172,10 +201,10 @@ public class PkiAuthPluginIT
     private void removeUser( PrivateKey defaultUserPrivateKey, String username )
     {
         AuthToken authToken = pkiAuthToken( DEFAULT_USER, defaultUserPrivateKey );
-        try ( Driver driver = GraphDatabase.driver( server.boltURI(), authToken );
+        try ( Driver driver = GraphDatabase.driver( boltURI(), authToken, config );
                 Session session = driver.session() )
         {
-            String query = "call removePkiUser({username})";
+            String query = "call removePkiUser($username)";
             Map<String,Object> params = singletonMap( "username", username );
 
             session.run( query, params ).consume();
@@ -186,7 +215,7 @@ public class PkiAuthPluginIT
     {
         AuthToken authToken = pkiAuthToken( username, privateKey );
 
-        try ( Driver driver = GraphDatabase.driver( server.boltURI(), authToken );
+        try ( Driver driver = GraphDatabase.driver( boltURI(), authToken, config );
                 Session session = driver.session() )
         {
             String nodeName = UUID.randomUUID().toString();
@@ -200,7 +229,7 @@ public class PkiAuthPluginIT
     {
         AuthToken authToken = pkiAuthToken( username, privateKey );
 
-        try ( Driver driver = GraphDatabase.driver( server.boltURI(), authToken );
+        try ( Driver driver = GraphDatabase.driver( boltURI(), authToken, config );
                 Session session = driver.session() )
         {
             Value value = session.run( "MATCH (n) RETURN count(n)" ).single().get( 0 );

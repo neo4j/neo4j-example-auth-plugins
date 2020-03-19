@@ -18,50 +18,58 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
+import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.neo4j.driver.v1.AuthTokens;
-import org.neo4j.driver.v1.Driver;
-import org.neo4j.driver.v1.GraphDatabase;
-import org.neo4j.driver.v1.Record;
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Value;
-import org.neo4j.harness.ServerControls;
-import org.neo4j.harness.internal.EnterpriseInProcessServerBuilder;
+import java.util.List;
 
+import org.neo4j.configuration.GraphDatabaseSettings;
+import org.neo4j.driver.AuthTokens;
+import org.neo4j.driver.Config;
+import org.neo4j.driver.Driver;
+import org.neo4j.driver.GraphDatabase;
+import org.neo4j.driver.Logging;
+import org.neo4j.driver.Record;
+import org.neo4j.driver.Session;
+import org.neo4j.driver.Result;
+import org.neo4j.driver.Value;
+import org.neo4j.harness.Neo4j;
+
+import static com.neo4j.harness.EnterpriseNeo4jBuilders.newInProcessBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertTrue;
 
 public class MyAuthPluginIT
 {
-    private ServerControls server;
+    private static final Config config = Config.builder().withLogging( Logging.none() ).withoutEncryption().build();
+    private Neo4j server;
 
     @Before
-    public void setUp() throws Exception
+    public void setUp()
     {
         // Start up server with authentication enables
-        server = new EnterpriseInProcessServerBuilder()
-                .withConfig( "dbms.security.auth_enabled", "true" )
-                .withConfig( "dbms.security.auth_provider", "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" )
-                .newServer();
+        server = newInProcessBuilder()
+                .withConfig( GraphDatabaseSettings.auth_enabled, true )
+                .withConfig( SecuritySettings.authentication_providers, List.of( "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" ) )
+                .withConfig( SecuritySettings.authorization_providers, List.of( "plugin-org.neo4j.example.auth.plugin.MyAuthPlugin" ) )
+                .build();
     }
 
     @After
-    public void tearDown() throws Exception
+    public void tearDown()
     {
         server.close();
     }
 
     @Test
-    public void shouldAuthenticateNeo4jUser() throws Throwable
+    public void shouldAuthenticateNeo4jUser()
     {
         // When & Then
         try( Driver driver = GraphDatabase.driver( server.boltURI(),
-             AuthTokens.basic( "neo4j", "neo4j" ) );
+             AuthTokens.basic( "neo4j", "neo4j" ), config );
              Session session = driver.session() )
         {
             Value single = session.run( "RETURN 1" ).single().get( 0 );
@@ -70,14 +78,14 @@ public class MyAuthPluginIT
     }
 
     @Test
-    public void shouldAuthenticateAndAuthorizeKalleMoraeusAsAdmin() throws Exception
+    public void shouldAuthenticateAndAuthorizeKalleMoraeusAsAdmin()
     {
-        Driver driver = GraphDatabase.driver( server.boltURI(), AuthTokens.basic( "moraeus", "suearom" ) );
+        Driver driver = GraphDatabase.driver( server.boltURI(), AuthTokens.basic( "moraeus", "suearom" ), config );
         Session session = driver.session();
 
         session.run( "CREATE (a:Person {name:'Kalle Moraeus', title:'Riksspelman'})" );
 
-        StatementResult result =
+        Result result =
                 session.run( "MATCH (a:Person) WHERE a.name = 'Kalle Moraeus' RETURN a.name AS name, a.title AS title" );
         assertTrue( result.hasNext() );
         while ( result.hasNext() )
