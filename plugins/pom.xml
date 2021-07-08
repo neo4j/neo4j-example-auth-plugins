@@ -33,7 +33,7 @@
     <dependency>
       <groupId>com.neo4j</groupId>
       <artifactId>neo4j-security-enterprise</artifactId>
-      <version>4.0.0</version>
+      <version>${neo4j.version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -41,13 +41,13 @@
     <dependency>
       <groupId>com.neo4j.test</groupId>
       <artifactId>neo4j-harness-enterprise</artifactId>
-      <version>4.0.0</version>
+      <version>${neo4j.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.neo4j</groupId>
       <artifactId>enterprise-it-test-support</artifactId>
-      <version>4.0.0</version>
+      <version>${neo4j.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
