@@ -43,6 +43,17 @@
     <url>https://github.com/neo-technology/neo4j-example-auth-plugins</url>
   </scm>
 
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>neo4j-enterprise</id>
+      <name>Neo4j Enterprise Artifacts</name>
+      <url>https://m2.neo4j.com/enterprise</url>
+    </repository>
+  </repositories>
+
   <dependencyManagement>
     <dependencies>
       <!-- Test dependencies -->
