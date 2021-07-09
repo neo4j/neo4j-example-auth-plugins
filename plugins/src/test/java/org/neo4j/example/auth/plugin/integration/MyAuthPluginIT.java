@@ -18,7 +18,7 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
-import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
+import com.neo4j.configuration.SecuritySettings;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

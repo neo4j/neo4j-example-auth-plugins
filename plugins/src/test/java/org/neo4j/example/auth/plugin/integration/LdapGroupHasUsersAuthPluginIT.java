@@ -18,7 +18,7 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
-import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
+import com.neo4j.configuration.SecuritySettings;
 import com.neo4j.test.TestEnterpriseDatabaseManagementServiceBuilder;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -94,10 +94,10 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
     {
         getLdapServer().setConfidentialityRequired( false );
 
-        Neo4jLayout home = Neo4jLayout.of( testDirectory.homeDir() );
+        Neo4jLayout home = Neo4jLayout.of( testDirectory.homePath() );
 
         // Create directories and write out test config file
-        File configDir = new File( home.homeDirectory(), "conf" );
+        File configDir = new File( home.homeDirectory().toFile(), "conf" );
         configDir.mkdirs();
 
         try ( FileWriter fileWriter = new FileWriter( new File( configDir, "ldap.conf" ) ) )
@@ -152,7 +152,7 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
             }
             catch ( ClientException e )
             {
-                assertThat( e.getMessage(), startsWith( "Write operations are not allowed" ) );
+                assertThat( e.getMessage(), startsWith( "Create node with labels '' on database 'neo4j' is not allowed" ) );
             }
         }
     }

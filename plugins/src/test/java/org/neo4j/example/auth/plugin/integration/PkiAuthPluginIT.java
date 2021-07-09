@@ -18,7 +18,7 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
-import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
+import com.neo4j.configuration.SecuritySettings;
 import com.neo4j.test.TestEnterpriseDatabaseManagementServiceBuilder;
 import org.junit.After;
 import org.junit.Before;
@@ -91,10 +91,10 @@ public class PkiAuthPluginIT
     {
         defaultUserKeys = generateKeyPair();
 
-        Neo4jLayout home = Neo4jLayout.of( testDirectory.homeDir() );
+        Neo4jLayout home = Neo4jLayout.of( testDirectory.homePath() );
 
         // Create directories and write out test config file
-        File configDir = new File( home.homeDirectory(), "conf" );
+        File configDir = new File( home.homeDirectory().toFile(), "conf" );
         configDir.mkdirs();
 
         try ( FileWriter fileWriter = new FileWriter( new File( configDir, "pki.conf" ) ) )
