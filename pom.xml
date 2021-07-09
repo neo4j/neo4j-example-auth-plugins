@@ -6,6 +6,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <neo4j.version>4.3.2</neo4j.version>
+    <junit.version>5.7.2</junit.version>
   </properties>
 
   <groupId>org.neo4j.example.auth</groupId>
@@ -86,7 +87,7 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
-        <version>5.7.2</version>
+        <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
