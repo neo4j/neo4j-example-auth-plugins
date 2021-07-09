@@ -20,10 +20,9 @@ package org.neo4j.example.auth.plugin.integration;
 
 import com.neo4j.configuration.SecuritySettings;
 import com.neo4j.test.TestEnterpriseDatabaseManagementServiceBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -60,6 +59,8 @@ import org.neo4j.internal.helpers.HostnamePort;
 import org.neo4j.io.layout.Neo4jLayout;
 import org.neo4j.kernel.api.procedure.GlobalProcedures;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
+import org.neo4j.test.extension.Inject;
+import org.neo4j.test.extension.testdirectory.TestDirectoryExtension;
 import org.neo4j.test.rule.TestDirectory;
 
 import static com.neo4j.server.security.enterprise.auth.plugin.api.PredefinedRoles.ADMIN;
@@ -75,10 +76,11 @@ import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.CRYPTO_ALGORITHM;
 import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.DEFAULT_USER;
 import static org.neo4j.example.auth.plugin.pki.PkiAuthPlugin.ENCRYPTED_USERNAME_PARAMETER_NAME;
 
+@TestDirectoryExtension
 public class PkiAuthPluginIT
 {
-    @Rule
-    public final TestDirectory testDirectory = TestDirectory.testDirectory();
+    @Inject
+    private TestDirectory testDirectory;
 
     private static final Config config = Config.builder().withLogging( Logging.none() ).withoutEncryption().build();
 
@@ -86,7 +88,7 @@ public class PkiAuthPluginIT
     private KeyPair defaultUserKeys;
     private ConnectorPortRegister connectorPortRegister;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception
     {
         defaultUserKeys = generateKeyPair();
@@ -122,7 +124,7 @@ public class PkiAuthPluginIT
         return URI.create( "bolt" + "://" + hostPort + "/" );
     }
 
-    @After
+    @AfterEach
     public void tearDown()
     {
         PkiRepository.reset();
