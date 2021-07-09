@@ -26,13 +26,14 @@ import org.apache.directory.server.core.annotations.ApplyLdifFiles;
 import org.apache.directory.server.core.annotations.CreateDS;
 import org.apache.directory.server.core.annotations.CreatePartition;
 import org.apache.directory.server.core.annotations.LoadSchema;
+import org.apache.directory.server.core.factory.DSAnnotationProcessor;
 import org.apache.directory.server.core.integ.AbstractLdapTestUnit;
-import org.apache.directory.server.core.integ.FrameworkRunner;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.apache.directory.server.factory.ServerAnnotationProcessor;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.runner.Description;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -56,16 +57,17 @@ import org.neo4j.example.auth.plugin.ldap.LdapGroupHasUsersAuthPlugin;
 import org.neo4j.internal.helpers.HostnamePort;
 import org.neo4j.io.layout.Neo4jLayout;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
+import org.neo4j.test.extension.Inject;
+import org.neo4j.test.extension.testdirectory.TestDirectoryExtension;
 import org.neo4j.test.rule.TestDirectory;
 
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.neo4j.configuration.connectors.BoltConnector.DEFAULT_PORT;
 
-@RunWith( FrameworkRunner.class )
 @CreateDS(
         name = "Test",
         partitions = { @CreatePartition(
@@ -79,21 +81,26 @@ import static org.neo4j.configuration.connectors.BoltConnector.DEFAULT_PORT;
         transports = { @CreateTransport( protocol = "LDAP", port = 10389, address = "localhost" ) }
 )
 @ApplyLdifFiles( "ldap_group_has_users_test_data.ldif" )
+@TestDirectoryExtension
 public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
 {
-    @Rule
-    public final TestDirectory testDirectory = TestDirectory.testDirectory();
+    @Inject
+    private TestDirectory testDirectory;
 
     private static final Config config = Config.builder().withLogging( Logging.none() ).withoutEncryption().build();
 
     private DatabaseManagementService databases;
     private ConnectorPortRegister connectorPortRegister;
 
-    @Before
+    @BeforeAll
+    public static void beforeClass() throws Exception {
+        processLdapAnnotations( LdapGroupHasUsersAuthPluginIT.class );
+    }
+
+    @BeforeEach
     public void setup() throws Exception
     {
         getLdapServer().setConfidentialityRequired( false );
-
         Neo4jLayout home = Neo4jLayout.of( testDirectory.homePath() );
 
         // Create directories and write out test config file
@@ -117,7 +124,8 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
         connectorPortRegister = db.getDependencyResolver().resolveDependency( ConnectorPortRegister.class );
     }
 
-    @After
+
+    @AfterEach
     public void tearDown()
     {
         databases.shutdown();
@@ -161,5 +169,13 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
     {
         HostnamePort hostPort = connectorPortRegister.getLocalAddress( BoltConnector.NAME );
         return URI.create( "bolt" + "://" + hostPort + "/" );
+    }
+
+    private static void processLdapAnnotations( Class<?> clazz ) throws Exception
+    {
+        Description description = Description.createSuiteDescription( clazz.getSimpleName(), clazz.getAnnotations() );
+        service = DSAnnotationProcessor.getDirectoryService( description );
+        DSAnnotationProcessor.applyLdifs( description, service );
+        ldapServer = ServerAnnotationProcessor.createLdapServer( description, service );
     }
 }

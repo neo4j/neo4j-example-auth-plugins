@@ -19,9 +19,9 @@
 package org.neo4j.example.auth.plugin.integration;
 
 import com.neo4j.configuration.SecuritySettings;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -47,7 +47,7 @@ public class MyAuthPluginIT
     private static final Config config = Config.builder().withLogging( Logging.none() ).withoutEncryption().build();
     private Neo4j server;
 
-    @Before
+    @BeforeEach
     public void setUp()
     {
         // Start up server with authentication enables
@@ -58,7 +58,7 @@ public class MyAuthPluginIT
                 .build();
     }
 
-    @After
+    @AfterEach
     public void tearDown()
     {
         server.close();
