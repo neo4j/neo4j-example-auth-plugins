@@ -49,6 +49,12 @@
       <artifactId>enterprise-it-test-support</artifactId>
       <version>${neo4j.version}</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.neo4j</groupId>
+          <artifactId>neo4j-causal-clustering</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.neo4j.driver</groupId>
