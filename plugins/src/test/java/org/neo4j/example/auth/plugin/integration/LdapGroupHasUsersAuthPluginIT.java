@@ -18,7 +18,7 @@
  */
 package org.neo4j.example.auth.plugin.integration;
 
-import com.neo4j.server.security.enterprise.configuration.SecuritySettings;
+import com.neo4j.configuration.SecuritySettings;
 import com.neo4j.test.TestEnterpriseDatabaseManagementServiceBuilder;
 import org.apache.directory.server.annotations.CreateLdapServer;
 import org.apache.directory.server.annotations.CreateTransport;
@@ -152,7 +152,7 @@ public class LdapGroupHasUsersAuthPluginIT extends AbstractLdapTestUnit
             }
             catch ( ClientException e )
             {
-                assertThat( e.getMessage(), startsWith( "Write operations are not allowed" ) );
+                assertThat( e.getMessage(), startsWith( "Create node with labels '' is not allowed" ) );
             }
         }
     }
