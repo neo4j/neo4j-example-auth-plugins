@@ -5,7 +5,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <neo4j.version>4.0.0</neo4j.version>
+    <neo4j.version>4.2.10-SNAPSHOT</neo4j.version>
   </properties>
 
   <groupId>org.neo4j.example.auth</groupId>
@@ -61,7 +61,7 @@
       <dependency>
         <groupId>org.neo4j.driver</groupId>
         <artifactId>neo4j-java-driver</artifactId>
-        <version>${neo4j.version}</version>
+        <version>4.3.3</version>
         <scope>test</scope>
       </dependency>
 
