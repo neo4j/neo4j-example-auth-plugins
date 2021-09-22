@@ -1,3 +1,4 @@
 org.neo4j.example.auth.plugin.MyAuthPlugin
+org.neo4j.example.auth.plugin.MyCacheableAuthPlugin
 org.neo4j.example.auth.plugin.pki.PkiAuthPlugin
 org.neo4j.example.auth.plugin.ldap.LdapGroupHasUsersAuthPlugin
