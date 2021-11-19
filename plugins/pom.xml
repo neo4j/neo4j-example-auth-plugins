@@ -6,6 +6,15 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <build.revision></build.revision>
+    <test.runner.jvm.settings>
+      --add-opens java.base/java.lang=ALL-UNNAMED
+      --add-opens java.base/java.nio=ALL-UNNAMED
+      --add-opens java.base/java.io=ALL-UNNAMED
+      --add-opens java.base/java.util=ALL-UNNAMED
+      --add-opens java.base/java.util.concurrent=ALL-UNNAMED
+      --add-opens java.base/sun.net.www.protocol.http=ALL-UNNAMED
+      --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+    </test.runner.jvm.settings>
   </properties>
 
   <parent>
@@ -165,13 +174,14 @@
             <version>${junit.version}</version>
           </dependency>
         </dependencies>
+        <configuration>
+          <argLine>${test.runner.jvm.settings}</argLine>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
         <version>2.22.2</version>
-        <configuration>
-        </configuration>
         <executions>
           <execution>
             <goals>
@@ -187,6 +197,9 @@
             <version>${junit.version}</version>
           </dependency>
         </dependencies>
+        <configuration>
+          <argLine>${test.runner.jvm.settings}</argLine>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
