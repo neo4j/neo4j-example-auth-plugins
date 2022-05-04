@@ -42,6 +42,7 @@ import javax.crypto.Cipher;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.configuration.connectors.BoltConnector;
 import org.neo4j.configuration.connectors.ConnectorPortRegister;
+import org.neo4j.configuration.connectors.ConnectorType;
 import org.neo4j.configuration.helpers.SocketAddress;
 import org.neo4j.dbms.api.DatabaseManagementService;
 import org.neo4j.driver.AuthToken;
@@ -120,7 +121,7 @@ public class PkiAuthPluginIT
 
     private URI boltURI()
     {
-        HostnamePort hostPort = connectorPortRegister.getLocalAddress( BoltConnector.NAME );
+        HostnamePort hostPort = connectorPortRegister.getLocalAddress( ConnectorType.BOLT );
         return URI.create( "bolt" + "://" + hostPort + "/" );
     }
 
