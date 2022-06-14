@@ -62,7 +62,7 @@
       <dependency>
         <groupId>org.neo4j.driver</groupId>
         <artifactId>neo4j-java-driver</artifactId>
-        <version>4.3.3</version>
+        <version>5.0.0-alpha02</version>
         <scope>test</scope>
       </dependency>
 
