@@ -129,7 +129,7 @@ public class PkiAuthPluginIT
     public void tearDown()
     {
         PkiRepository.reset();
-        databases.shutdown();
+        if (databases != null) databases.shutdown();
     }
 
     @Test
