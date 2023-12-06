@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 
 import com.neo4j.server.security.enterprise.auth.plugin.api.AuthProviderOperations;
 
-import static org.mockito.Matchers.startsWith;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

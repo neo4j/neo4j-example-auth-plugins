@@ -5,8 +5,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <neo4j.version>5.3.0</neo4j.version>
-    <junit.version>5.7.2</junit.version>
+    <neo4j.version>5.14.0</neo4j.version>
+    <junit.version>5.10.1</junit.version>
   </properties>
 
   <groupId>org.neo4j.example.auth</groupId>
@@ -62,7 +62,7 @@
       <dependency>
         <groupId>org.neo4j.driver</groupId>
         <artifactId>neo4j-java-driver</artifactId>
-        <version>5.8.0</version>
+        <version>5.15.0</version>
         <scope>test</scope>
       </dependency>
 
@@ -81,7 +81,7 @@
       <dependency>
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
-        <version>1.10.19</version>
+        <version>5.7.0</version>
         <scope>test</scope>
       </dependency>
       <dependency>
