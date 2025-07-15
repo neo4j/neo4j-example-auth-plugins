@@ -1,7 +1,7 @@
 # neo4j-example-auth-plugins
 Example authentication and authorization plugins for Neo4j
 
-You have to run this with Java 11.
+You have to run this with Java 21.
 
 If you just want to build the plugins, you can choose to ignore integration tests by running:
 
