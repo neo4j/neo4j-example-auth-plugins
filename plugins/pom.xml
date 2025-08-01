@@ -7,6 +7,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <build.revision></build.revision>
     <test.runner.jvm.settings>
+      -javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"
       --add-opens java.base/java.lang=ALL-UNNAMED
       --add-opens java.base/java.nio=ALL-UNNAMED
       --add-opens java.base/java.io=ALL-UNNAMED
