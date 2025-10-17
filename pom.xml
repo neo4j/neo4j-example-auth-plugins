@@ -5,7 +5,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <neo4j.version>2025.07.0</neo4j.version>
+    <neo4j.version>2025.10.0</neo4j.version>
     <junit.version>5.12.2</junit.version>
     <mockito.version>5.14.2</mockito.version>
   </properties>
@@ -63,7 +63,7 @@
       <dependency>
         <groupId>org.neo4j.driver</groupId>
         <artifactId>neo4j-java-driver</artifactId>
-        <version>5.28.7</version>
+        <version>6.0.1</version>
         <scope>test</scope>
       </dependency>
 
