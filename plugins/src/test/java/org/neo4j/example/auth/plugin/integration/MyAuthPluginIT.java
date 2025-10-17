@@ -21,7 +21,7 @@ package org.neo4j.example.auth.plugin.integration;
 import static com.neo4j.harness.EnterpriseNeo4jBuilders.newInProcessBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.neo4j.configuration.SecuritySettings;
 import java.util.List;
