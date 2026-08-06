@@ -5,7 +5,7 @@ You have to run this with Java 21.
 
 If you just want to build the plugins, you can choose to ignore integration tests by running:
 
-    mvn clean install -DskipITs 
+    ./mvnw clean install -DskipITs 
 
 ## Install plugins in Neo4j
 Copy the output jar file into the plugins folder of Neo4j Enterprise Edition 4.0 or later:
