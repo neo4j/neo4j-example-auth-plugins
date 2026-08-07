@@ -42,7 +42,13 @@
   <dependencies>
     <dependency>
       <groupId>com.neo4j</groupId>
-      <artifactId>neo4j-security-enterprise</artifactId>
+      <artifactId>neo4j-auth-plugin-api</artifactId>
+      <version>${neo4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.neo4j</groupId>
+      <artifactId>neo4j-procedure-api</artifactId>
       <version>${neo4j.version}</version>
       <scope>provided</scope>
     </dependency>
@@ -52,13 +58,21 @@
       <groupId>com.neo4j.test</groupId>
       <artifactId>neo4j-harness-enterprise</artifactId>
       <version>${neo4j.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.jupiter</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.junit.platform</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
       <scope>test</scope>
-        <exclusions>
-            <exclusion>
-                <groupId>org.junit.vintage</groupId>
-                <artifactId>junit-vintage-engine</artifactId>
-            </exclusion>
-        </exclusions>
     </dependency>
     <dependency>
       <groupId>org.neo4j</groupId>
@@ -110,6 +124,7 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -187,14 +202,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.3</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-          </dependency>
-        </dependencies>
+        <version>3.5.6</version>
         <configuration>
           <argLine>${test.runner.jvm.settings}</argLine>
         </configuration>
