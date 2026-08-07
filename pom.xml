@@ -5,7 +5,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <neo4j.version>2026.01.4</neo4j.version>
+    <neo4j.version>2026.06.0</neo4j.version>
     <junit.version>6.0.2</junit.version>
     <mockito.version>5.14.2</mockito.version>
   </properties>
@@ -63,7 +63,7 @@
       <dependency>
         <groupId>org.neo4j.driver</groupId>
         <artifactId>neo4j-java-driver</artifactId>
-        <version>6.0.1</version>
+        <version>6.2.0</version>
         <scope>test</scope>
       </dependency>
 
@@ -88,12 +88,6 @@
       <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter</artifactId>
-        <version>${junit.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter-engine</artifactId>
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
