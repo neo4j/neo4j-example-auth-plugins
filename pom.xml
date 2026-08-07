@@ -5,7 +5,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <neo4j.version>2026.06.0</neo4j.version>
+    <neo4j.version>2026.07.1</neo4j.version>
     <junit.version>6.0.2</junit.version>
     <mockito.version>5.14.2</mockito.version>
   </properties>
